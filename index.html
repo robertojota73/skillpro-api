@@ -172,6 +172,21 @@
       border: none;
       background: #fff;
     }
+    
+    @media (max-width: 768px) {
+      nav {
+        width: 220px;
+      }
+      
+      .logo-section img {
+        width: 100px;
+      }
+      
+      nav a {
+        font-size: 0.9em;
+        padding: 10px 15px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -185,18 +200,14 @@
       <div class="nav-section">
         <div class="nav-section-title">Documentações</div>
 
-        <!-- CRM agora abre em nova aba -->
-        <a href="https://developers.crm.sandbox.imlabs.com.br/" 
-           onclick="load('crm', event)" 
-           class="active" 
-           id="link-crm">
+        <!-- CRM: dentro do iframe -->
+        <a href="#" onclick="load('crm', event)" class="active" id="link-crm">
           <span>CRM</span>
         </a>
 
-        <!-- Imbot continua nova aba -->
+        <!-- Imbot: nova aba (Postman) -->
         <a href="https://documenter.getpostman.com/view/5435045/2sA2rFRKjn"
-           onclick="load('imbot', event)"
-           id="link-imbot">
+           onclick="load('imbot', event)" id="link-imbot">
           <span>Imbot</span>
           <svg class="external-icon" fill="currentColor" viewBox="0 0 16 16">
             <path d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
@@ -204,7 +215,7 @@
           </svg>
         </a>
 
-        <!-- Imlabs continua dentro do iframe -->
+        <!-- Imlabs: dentro do iframe -->
         <a href="#" onclick="load('imlabs', event)" id="link-imlabs">
           <span>Imlabs</span>
         </a>
@@ -239,36 +250,39 @@
   </nav>
   
   <main>
-    <!-- Deixa o IMLABS como padrão no iframe, já que ele aceita -->
-    <iframe id="doc" src="https://developers.crm.sandbox.imlabs.com.br/index.php?r=doc%2Fapi"></iframe>
+    <!-- Começa com o CRM carregado dentro do iframe -->
+    <iframe id="doc" src="https://developers.crm.sandbox.imlabs.com.br/"></iframe>
   </main>
   
   <script>
     const urls = {
-      crm: 'https://developers.crm.sandbox.imlabs.com.br/index.php?r=doc%2Fapi',
+      crm: 'https://developers.crm.sandbox.imlabs.com.br/',
       imbot: 'https://documenter.getpostman.com/view/5435045/2sA2rFRKjn',
       imlabs: 'https://homolog.developers.imlabs.com.br/doc/api'
     };
     
-    function load(id, event) {
-      if (event) event.preventDefault();
-      
-      // tira "active" de todos
+    function setActive(id) {
       document.querySelectorAll('nav a').forEach(link => {
         link.classList.remove('active');
       });
-
       const current = document.getElementById('link-' + id);
       if (current) current.classList.add('active');
+    }
 
-      if (id === 'crm' || id === 'imbot') {
-        // esses dois sempre em nova aba
-        window.open(urls[id], '_blank', 'noopener,noreferrer');
+    function load(id, event) {
+      if (event) event.preventDefault();
+      
+      if (id === 'imbot') {
+        // sempre nova aba
+        window.open(urls.imbot, '_blank', 'noopener,noreferrer');
+        setActive('imbot');
         return;
       }
 
-      // imlabs dentro do iframe
-      document.getElementById('doc').src = urls[id];
+      // CRM e Imlabs dentro do iframe
+      const iframe = document.getElementById('doc');
+      iframe.src = urls[id];
+      setActive(id);
     }
   </script>
 </body>
