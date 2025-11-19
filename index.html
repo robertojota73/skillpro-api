@@ -267,11 +267,7 @@
   </nav>
   
   <main>
-    <div class="loading" id="loading">
-      <div class="loading-spinner"></div>
-      <div>Carregando documentação...</div>
-    </div>
-    <iframe id="doc" src="https://developers.crm.sandbox.imlabs.com.br/" style="display: none;"></iframe>
+    <iframe id="doc" src="https://developers.crm.sandbox.imlabs.com.br/"></iframe>
   </main>
   
   <script>
@@ -280,23 +276,6 @@
       imbot: 'https://documenter.getpostman.com/view/5435045/2sA2rFRKjn',
       imlabs: 'https://homolog.developers.imlabs.com.br/doc/api'
     };
-    
-    const iframe = document.getElementById('doc');
-    const loading = document.getElementById('loading');
-    
-    // Mostrar iframe quando carregar
-    iframe.addEventListener('load', function() {
-      loading.style.display = 'none';
-      iframe.style.display = 'block';
-    });
-    
-    // Timeout de segurança (5 segundos)
-    setTimeout(function() {
-      if (loading.style.display !== 'none') {
-        loading.style.display = 'none';
-        iframe.style.display = 'block';
-      }
-    }, 5000);
     
     function load(id) {
       // Remove active class de todos os links
@@ -308,12 +287,8 @@
         // Abre o Imbot em nova aba
         window.open(urls.imbot, '_blank', 'noopener,noreferrer');
       } else {
-        // Mostra loading
-        loading.style.display = 'block';
-        iframe.style.display = 'none';
-        
         // Carrega no iframe e marca como ativo
-        iframe.src = urls[id];
+        document.getElementById('doc').src = urls[id];
         document.getElementById('link-' + id).classList.add('active');
       }
     }
