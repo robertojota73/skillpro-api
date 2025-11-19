@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -173,6 +172,58 @@ html
       border: none;
       background: #fff;
     }
+
+    /* Mensagem de erro estilizada */
+    .error-message {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 500px;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .error-message svg {
+      width: 64px;
+      height: 64px;
+      color: #f59e0b;
+      margin-bottom: 20px;
+    }
+
+    .error-message h2 {
+      margin: 0 0 10px;
+      color: #1a1a1a;
+    }
+
+    .error-message p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .error-message button {
+      background: #4ade80;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .error-message button:hover {
+      background: #22c55e;
+    }
     
     @media (max-width: 768px) {
       nav {
@@ -248,15 +299,26 @@ html
   
   <main>
     <iframe id="doc" src="https://developers.crm.sandbox.imlabs.com.br/"></iframe>
+    
+    <!-- Mensagem de erro -->
+    <div id="errorMessage" class="error-message">
+      <svg fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+      </svg>
+      <h2>Conteúdo Bloqueado</h2>
+      <p>Esta documentação não pode ser carregada diretamente no frame devido a restrições de segurança do site.</p>
+      <button onclick="openInNewTab()">Abrir em Nova Aba</button>
+    </div>
   </main>
   
   <script>
-<script>
     const urls = {
-      crm: 'https://cors-anywhere.herokuapp.com/http://developers.crm.sandbox.imlabs.com.br/',
+      crm: 'https://developers.crm.sandbox.imlabs.com.br/',
       imbot: 'https://documenter.getpostman.com/view/5435045/2sA2rFRKjn',
-      imlabs: 'https://cors-anywhere.herokuapp.com/http://homolog.developers.imlabs.com.br/doc/api'
+      imlabs: 'https://homolog.developers.imlabs.com.br/doc/api'
     };
+    
+    let currentUrl = '';
     
     function setActive(id) {
       document.querySelectorAll('nav a').forEach(link => {
@@ -266,19 +328,62 @@ html
       if (current) current.classList.add('active');
     }
 
+    function hideError() {
+      document.getElementById('errorMessage').classList.remove('show');
+      document.getElementById('doc').style.display = 'block';
+    }
+
+    function showError() {
+      document.getElementById('errorMessage').classList.add('show');
+      document.getElementById('doc').style.display = 'none';
+    }
+
+    function openInNewTab() {
+      if (currentUrl) {
+        window.open(currentUrl, '_blank', 'noopener,noreferrer');
+      }
+    }
+
     function load(id, event) {
       if (event) event.preventDefault();
       
-      if (id === 'imbot') {
-        window.open(urls.imbot, '_blank', 'noopener,noreferrer');
-        setActive('imbot');
-        return;
-      }
-
+      currentUrl = urls[id];
       const iframe = document.getElementById('doc');
-      iframe.src = urls[id];
+      
+      // Tenta carregar no iframe
+      hideError();
+      iframe.src = currentUrl;
       setActive(id);
+      
+      // Detecta se o iframe foi bloqueado (timeout de 3 segundos)
+      const timeout = setTimeout(() => {
+        // Se não conseguiu carregar, mostra erro
+        try {
+            showError();
+          }
+        } catch (e) {
+          // Erro de acesso = bloqueado por X-Frame-Options
+          showError();
+        }
+      }, 3000);
+      
+      // Se carregar com sucesso, cancela o timeout
+      iframe.onload = () => {
+        clearTimeout(timeout);
+        try {
+          if (iframeDoc && iframeDoc.URL !== 'about:blank') {
+            hideError();
+          }
+        } catch (e) {
+          showError();
+        }
+      };
     }
+
+    // Carrega CRM por padrão
+    window.onload = () => {
+      load('crm', null);
+    };
   </script>
 </body>
 </html>
