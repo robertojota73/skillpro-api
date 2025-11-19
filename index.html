@@ -172,45 +172,6 @@
       border: none;
       background: #fff;
     }
-    
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      color: #666;
-      font-size: 14px;
-    }
-    
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #e5e5e5;
-      border-top-color: #4ade80;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    @media (max-width: 768px) {
-      nav {
-        width: 220px;
-      }
-      
-      .logo-section img {
-        width: 100px;
-      }
-      
-      nav a {
-        font-size: 0.9em;
-        padding: 10px 15px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -223,17 +184,28 @@
     <div class="nav-links">
       <div class="nav-section">
         <div class="nav-section-title">Documentações</div>
-        <a onclick="load('crm')" class="active" id="link-crm">
+
+        <!-- CRM agora abre em nova aba -->
+        <a href="https://developers.crm.sandbox.imlabs.com.br/" 
+           onclick="load('crm', event)" 
+           class="active" 
+           id="link-crm">
           <span>CRM</span>
         </a>
-        <a onclick="load('imbot')" id="link-imbot">
+
+        <!-- Imbot continua nova aba -->
+        <a href="https://documenter.getpostman.com/view/5435045/2sA2rFRKjn"
+           onclick="load('imbot', event)"
+           id="link-imbot">
           <span>Imbot</span>
           <svg class="external-icon" fill="currentColor" viewBox="0 0 16 16">
             <path d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
             <path d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
           </svg>
         </a>
-        <a onclick="load('imlabs')" id="link-imlabs">
+
+        <!-- Imlabs continua dentro do iframe -->
+        <a href="#" onclick="load('imlabs', event)" id="link-imlabs">
           <span>Imlabs</span>
         </a>
       </div>
@@ -267,7 +239,8 @@
   </nav>
   
   <main>
-    <iframe id="doc" src="https://developers.crm.sandbox.imlabs.com.br/"></iframe>
+    <!-- Deixa o IMLABS como padrão no iframe, já que ele aceita -->
+    <iframe id="doc" src="https://homolog.developers.imlabs.com.br/doc/api"></iframe>
   </main>
   
   <script>
@@ -277,20 +250,25 @@
       imlabs: 'https://homolog.developers.imlabs.com.br/doc/api'
     };
     
-    function load(id) {
-      // Remove active class de todos os links
+    function load(id, event) {
+      if (event) event.preventDefault();
+      
+      // tira "active" de todos
       document.querySelectorAll('nav a').forEach(link => {
         link.classList.remove('active');
       });
-      
-      if (id === 'imbot') {
-        // Abre o Imbot em nova aba
-        window.open(urls.imbot, '_blank', 'noopener,noreferrer');
-      } else {
-        // Carrega no iframe e marca como ativo
-        document.getElementById('doc').src = urls[id];
-        document.getElementById('link-' + id).classList.add('active');
+
+      const current = document.getElementById('link-' + id);
+      if (current) current.classList.add('active');
+
+      if (id === 'crm' || id === 'imbot') {
+        // esses dois sempre em nova aba
+        window.open(urls[id], '_blank', 'noopener,noreferrer');
+        return;
       }
+
+      // imlabs dentro do iframe
+      document.getElementById('doc').src = urls[id];
     }
   </script>
 </body>
